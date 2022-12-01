@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.hit.dao.CategorySecondDao">
+
+
+    <resultMap id="Pr" type="cn.edu.hit.po.Product" >
+        <id column="p_id" property="pId"/>
+        <result column="p_name" property="pName"/>
+        <result column="market_price" property="marketPrice"/>
+        <result column="shop_price" property="shopPrice"/>
+        <result column="image" property="image"/>
+        <result column="p_desc" property="pDesc"/>
+        <result column="is_hot" property="isHot"/>
+        <result column="p_date" property="pDate"/>
+        <result column="cs_id" property="csId"/>
+    </resultMap>
+
+    <select id="getCategorySecond"  parameterType="cn.edu.hit.po.Product" resultMap="Pr">
+        SELECT product.* FROM product
+        <if test="cId!=null">
+            JOIN category_second on product.cs_id=category_second.cs_id
+            WHERE c_id=#{cId}
+        </if>
+
+        <if test="csId!=null">
+            WHERE cs_id=#{csId}
+        </if>
+
+        <if test="pName!=null">
+            WHERE p_name LIKE "%"#{pName}"%"
+        </if>
+    </select>
+
+    <select id="getHot" resultType="cn.edu.hit.po.Product" resultMap="Pr">
+        SELECT product.* FROM product
+        <if test="cId!=null">
+            JOIN category_second on product.cs_id=category_second.cs_id
+            WHERE c_id=#{cId} and is_hot=1
+        </if>
+
+        <if test="csId!=null">
+            WHERE cs_id=#{csId} and is_hot=1
+        </if>
+
+        limit 3
+    </select>
+</mapper>

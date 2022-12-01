@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.hit.dao.IndexDao">
+
+    <!--    1对1平铺映射-->
+    <!--    1对多层叠映射-->
+
+    <resultMap id="cat" type="cn.edu.hit.po.CategoryExt">
+        <id column="c_id" property="cId"/>
+        <result column="c_name" property="cName"/>
+        <association property="list" javaType="cn.edu.hit.po.CategorySecond">
+            <id column="cs_id" property="csId"/>
+            <result column="cs_name" property="csName"/>
+            <result column="c_id" property="cId"/>
+        </association>
+    </resultMap>
+
+<!--    <select id="getCategory" resultMap="cat">-->
+<!--        SELECT * FROM category LEFT JOIN category_second ON category.c_id=category_second.c_id-->
+<!--    </select>-->
+
+    <select id="getCategory" resultMap="cat">
+        select * from category left join category_second  on  category.c_id=category_second.c_id
+    </select>
+
+</mapper>

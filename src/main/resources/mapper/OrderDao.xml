@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.edu.hit.dao.OrderDao">
+
+    <insert id="addOrder" parameterType="cn.edu.hit.po.Order">
+        <selectKey resultType="Integer" keyProperty="oId" keyColumn="o_id" order="AFTER">
+            select LAST_INSERT_ID();
+        </selectKey>
+
+        insert into `order` values(default,#{total},#{orderTime},#{state},#{name},#{phone},#{addr},#{uId})
+    </insert>
+
+
+    <insert id="addOrderItem" parameterType="cn.edu.hit.po.OrderItem">
+        insert into `order_item` values(default,#{count},#{subTotal},#{pId},#{oId})
+    </insert>
+
+    <resultMap id="setMap" type="cn.edu.hit.po.OrderExt">
+        <!--订单表-->
+        <id property="oId" column="o_id"/>
+        <result column="total" property="total"/>
+        <result property="orderTime" column="order_time"/>
+        <result property="state" column="state"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="addr" column="addr"/>
+        <result property="uId" column="u_id"/>
+
+        <!--订单项-->
+        <collection property="list" ofType="cn.edu.hit.po.OrderItemExt">
+            <id property="itemId" column="item_id"/>
+            <result property="count" column="count"/>
+            <result property="subTotal" column="sub_total"/>
+            <result property="pId" column="p_id"/>
+            <result property="oId" column="o_id"/>
+
+            <!--商品表-->
+<!--            <association property="product" javaType="cn.edu.hit.po.Product">-->
+<!--                <id property="pId" column="p_id"></id>-->
+<!--                <result property="pName" column="p_name"></result>-->
+<!--                <result property="marketPrice" column="market_price"></result>-->
+<!--                <result property="shopPrice" column="shop_price"></result>-->
+<!--                <result property="image" column="image"></result>-->
+<!--                <result property="pDesc" column="p_desc"></result>-->
+<!--                <result property="isHot" column="is_hot"></result>-->
+<!--                <result property="pDate" column="p_date"></result>-->
+<!--                <result property="csId" column="cs_id"></result>-->
+<!--                -->
+<!--            </association>-->
+            <association property="product" javaType="cn.edu.hit.po.Product">
+                <id property="pId" column="p_id"></id>
+                <result property="pName" column="p_name"></result>
+                <result property="marketPrice" column="market_price"></result>
+                <result property="shopPrice" column="shop_price"></result>
+                <result property="image" column="image"></result>
+                <result property="pDesc" column="p_desc"></result>
+                <result property="isHot" column="is_hot"></result>
+                <result property="pDate" column="p_date"></result>
+                <result property="csId" column="cs_id"></result>
+            </association>
+
+        </collection>
+
+
+    </resultMap>
+
+    <select id="setallOrder" parameterType="Integer" resultMap="setMap">
+        SELECT * FROM (SELECT * FROM `order` WHERE u_id=#{uId} and state!=-1) AS `order`
+            JOIN order_item on `order`.o_id=order_item.o_id
+            JOIN product on order_item.p_id=product.p_id
+                 ORDER BY `order`.order_time desc
+    </select>
+
+    <select id="setState" parameterType="Integer" resultType="Map">
+        SELECT state,count(0) FROM `order` WHERE u_id=#{uId} and state!=-1 GROUP BY state ORDER BY state
+    </select>
+
+    <select id="selAll" parameterType="Integer" resultMap="setMap">
+        SELECT * FROM (SELECT * FROM `order` WHERE o_id=#{oId}) a JOIN order_item b on a.o_id = b.o_id JOIN product p on p.p_id = b.p_id
+    </select>
+
+    <update id="updateState" parameterType="cn.edu.hit.po.Order">
+        UPDATE `order` set state=#{state} where o_id=#{oId}
+    </update>
+
+    <!--    更新状态  -->
+    <update id="upid" parameterType="Integer">
+        UPDATE `order` set state=#{1} where o_id=#{oId}
+    </update>
+
+    <resultMap id="oMap" type="cn.edu.hit.po.Order">
+        <id property="oId" column="o_id"/>
+        <result property="total" column="total"/>
+        <result property="orderTime" column="order_time"/>
+        <result property="state" column="state"/>
+        <result property="name" column="name"/>
+        <result property="phone" column="phone"/>
+        <result property="addr" column="addr"/>
+        <result property="uId" column="u_id"/>
+    </resultMap>
+
+    <select id="getOrderByOId" resultType="cn.edu.hit.po.Order" resultMap="oMap">
+        SELECT  * FROM `order` where o_id=#{oId}
+    </select>
+
+</mapper>
